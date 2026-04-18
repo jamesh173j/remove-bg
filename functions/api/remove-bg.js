@@ -1,4 +1,20 @@
 // Cloudflare Function - 代理 remove.bg API
+
+// CORS 响应头
+const corsHeaders = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+};
+
+// 处理 OPTIONS 预检请求
+export async function onRequestOptions() {
+    return new Response(null, {
+        status: 204,
+        headers: corsHeaders,
+    });
+}
+
 export async function onRequestPost(context) {
     const { request, env } = context;
 
@@ -28,7 +44,7 @@ export async function onRequestPost(context) {
                 error: '请求过于频繁，请稍后再试（每分钟最多10次）'
             }), {
                 status: 429,
-                headers: { 'Content-Type': 'application/json' }
+                headers: { ...corsHeaders, 'Content-Type': 'application/json' }
             });
         }
 
@@ -47,7 +63,7 @@ export async function onRequestPost(context) {
         if (!imageFile) {
             return new Response(JSON.stringify({ error: '请上传图片文件' }), {
                 status: 400,
-                headers: { 'Content-Type': 'application/json' }
+                headers: { ...corsHeaders, 'Content-Type': 'application/json' }
             });
         }
 
@@ -56,7 +72,7 @@ export async function onRequestPost(context) {
         if (!validTypes.includes(imageFile.type)) {
             return new Response(JSON.stringify({ error: '仅支持 JPG 和 PNG 格式' }), {
                 status: 400,
-                headers: { 'Content-Type': 'application/json' }
+                headers: { ...corsHeaders, 'Content-Type': 'application/json' }
             });
         }
 
@@ -65,7 +81,7 @@ export async function onRequestPost(context) {
         if (imageFile.size > maxSize) {
             return new Response(JSON.stringify({ error: '文件大小不能超过 10MB' }), {
                 status: 400,
-                headers: { 'Content-Type': 'application/json' }
+                headers: { ...corsHeaders, 'Content-Type': 'application/json' }
             });
         }
 
@@ -91,7 +107,7 @@ export async function onRequestPost(context) {
             const errorMsg = errorData.errors?.[0]?.title || `处理失败 (${response.status})`;
             return new Response(JSON.stringify({ error: errorMsg }), {
                 status: response.status,
-                headers: { 'Content-Type': 'application/json' }
+                headers: { ...corsHeaders, 'Content-Type': 'application/json' }
             });
         }
 
@@ -100,6 +116,7 @@ export async function onRequestPost(context) {
 
         return new Response(imageBuffer, {
             headers: {
+                ...corsHeaders,
                 'Content-Type': 'image/png',
                 'Content-Length': imageBuffer.byteLength.toString(),
             },
@@ -109,7 +126,7 @@ export async function onRequestPost(context) {
         console.error('处理错误:', error);
         return new Response(JSON.stringify({ error: '服务器内部错误' }), {
             status: 500,
-            headers: { 'Content-Type': 'application/json' }
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         });
     }
 }
@@ -117,6 +134,6 @@ export async function onRequestPost(context) {
 // 健康检查
 export async function onRequestGet() {
     return new Response(JSON.stringify({ status: 'ok', timestamp: new Date().toISOString() }), {
-        headers: { 'Content-Type': 'application/json' }
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
 }

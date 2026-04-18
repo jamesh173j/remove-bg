@@ -15,8 +15,11 @@ const errorText = document.getElementById('errorText');
 
 let currentResultBlob = null;
 
-// 后端 API 地址（Cloudflare Pages 同域部署）
-const API_BASE = '';
+// 后端 API 地址
+// 本地开发时使用 Cloudflare 线上 API，线上部署时使用同域
+const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'https://remove-bg-aba.pages.dev'  // 本地开发：调用线上 API
+    : '';  // 线上部署：同域调用
 
 // 切换显示区域
 function showSection(section) {
