@@ -15,7 +15,7 @@ const errorText = document.getElementById('errorText');
 
 let currentResultBlob = null;
 
-// 后端 API 地址（同域部署时使用相对路径）
+// 后端 API 地址（Cloudflare Pages 同域部署）
 const API_BASE = '';
 
 // 切换显示区域
