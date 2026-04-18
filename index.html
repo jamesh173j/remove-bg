@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能去背景 - AI一键抠图工具</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🎨 智能去背景</h1>
+            <p class="subtitle">AI 一键抠图，无需注册，即用即走</p>
+        </header>
+
+        <main class="main">
+            <!-- 上传区域 -->
+            <div class="upload-section" id="uploadSection">
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">📤</div>
+                    <p class="upload-text">拖拽图片到此处，或 <span class="click-text">点击上传</span></p>
+                    <p class="upload-hint">支持 JPG、PNG 格式，文件大小不超过 10MB</p>
+                    <input type="file" id="fileInput" accept="image/jpeg,image/jpg,image/png" hidden>
+                </div>
+            </div>
+
+            <!-- 处理中状态 -->
+            <div class="processing-section" id="processingSection" style="display: none;">
+                <div class="spinner"></div>
+                <p class="processing-text">AI 正在智能抠图中...</p>
+                <p class="processing-hint">请稍候，这个过程通常需要几秒钟</p>
+            </div>
+
+            <!-- 结果展示区域 -->
+            <div class="result-section" id="resultSection" style="display: none;">
+                <div class="preview-container">
+                    <div class="preview-box">
+                        <h3>原图</h3>
+                        <div class="image-wrapper">
+                            <img id="originalImage" src="" alt="原图">
+                        </div>
+                    </div>
+                    <div class="preview-box">
+                        <h3>去背景后</h3>
+                        <div class="image-wrapper checkerboard">
+                            <img id="resultImage" src="" alt="去背景后">
+                        </div>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <button class="btn btn-download" id="downloadBtn">
+                        <span>⬇️</span> 下载透明背景图片
+                    </button>
+                    <button class="btn btn-secondary" id="retryBtn">
+                        <span>🔄</span> 处理新图片
+                    </button>
+                </div>
+            </div>
+
+            <!-- 错误提示 -->
+            <div class="error-section" id="errorSection" style="display: none;">
+                <div class="error-icon">❌</div>
+                <p class="error-text" id="errorText">处理失败，请重试</p>
+                <button class="btn btn-secondary" id="errorRetryBtn">重新上传</button>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <div class="privacy-notice">
+                <span>🔒</span> 隐私保护：我们不存储任何用户图片，所有处理均在内存中完成
+            </div>
+            <p class="copyright">智能去背景工具 &copy; 2026</p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
