@@ -20,14 +20,32 @@
                 </div>
                 <!-- 已登录状态 -->
                 <div id="userSection" class="user-section" style="display: none;">
-                    <img id="userAvatar" class="user-avatar" src="" alt="头像">
-                    <span id="userName" class="user-name"></span>
-                    <button id="logoutBtn" class="btn-logout">退出</button>
+                    <div class="user-menu-wrapper">
+                        <img id="userAvatar" class="user-avatar" src="" alt="头像" onclick="toggleUserMenu()">
+                        <div class="user-dropdown" id="userDropdown" style="display: none;">
+                            <div class="dropdown-item" onclick="showProfile()">
+                                <span>👤</span> 个人中心
+                            </div>
+                            <div class="dropdown-item" onclick="showUpgrade()">
+                                <span>⭐</span> 升级 Pro
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <div class="dropdown-item" onclick="logout()">
+                                <span>🚪</span> 退出登录
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </header>
 
         <main class="main">
+            <!-- 使用次数显示 -->
+            <div class="usage-bar" id="usageBar">
+                <span id="usageDisplay">今日剩余 3 次</span>
+                <button class="btn-upgrade" id="upgradeBtn" style="display: none;">升级 Pro</button>
+            </div>
+
             <!-- 上传区域 -->
             <div class="upload-section" id="uploadSection">
                 <div class="upload-area" id="uploadArea">
@@ -35,6 +53,88 @@
                     <p class="upload-text">拖拽图片到此处，或 <span class="click-text">点击上传</span></p>
                     <p class="upload-hint">支持 JPG、PNG 格式，文件大小不超过 10MB</p>
                     <input type="file" id="fileInput" accept="image/jpeg,image/jpg,image/png" hidden>
+                </div>
+            </div>
+
+            <!-- 个人中心页面 -->
+            <div class="profile-section" id="profileSection" style="display: none;">
+                <div class="profile-card">
+                    <div class="profile-header">
+                        <img id="profileAvatar" class="profile-avatar" src="" alt="头像">
+                        <div class="profile-info">
+                            <h2 id="profileName">用户名</h2>
+                            <p id="profileEmail">邮箱</p>
+                            <span class="plan-badge" id="planBadge">免费版</span>
+                        </div>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-value" id="todayUsage">0</div>
+                            <div class="stat-label">今日使用</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="totalUsage">0</div>
+                            <div class="stat-label">总计处理</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="remainingUsage">3</div>
+                            <div class="stat-label">剩余次数</div>
+                        </div>
+                    </div>
+
+                    <div class="history-section">
+                        <h3>最近记录</h3>
+                        <div class="history-list" id="historyList">
+                            <p class="empty-history">暂无处理记录</p>
+                        </div>
+                    </div>
+
+                    <div class="profile-actions">
+                        <button class="btn btn-secondary" id="backToHome">返回首页</button>
+                        <button class="btn btn-upgrade" id="profileUpgradeBtn">升级 Pro</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pro 升级页面 -->
+            <div class="upgrade-section" id="upgradeSection" style="display: none;">
+                <div class="upgrade-card">
+                    <h2>升级 Pro 会员</h2>
+                    <p class="upgrade-subtitle">解锁无限次使用，享受专业体验</p>
+
+                    <div class="pricing-cards">
+                        <div class="pricing-card">
+                            <div class="pricing-header">
+                                <h3>月付</h3>
+                                <div class="pricing-price">¥19<span>/月</span></div>
+                            </div>
+                            <ul class="pricing-features">
+                                <li>✅ 无限次去背景</li>
+                                <li>✅ 优先处理</li>
+                                <li>✅ 批量处理</li>
+                            </ul>
+                            <button class="btn btn-primary" onclick="upgradeToPro('monthly')">选择月付</button>
+                        </div>
+
+                        <div class="pricing-card recommended">
+                            <div class="recommend-badge">推荐</div>
+                            <div class="pricing-header">
+                                <h3>年付</h3>
+                                <div class="pricing-price">¥99<span>/年</span></div>
+                                <div class="pricing-save">省 ¥129</div>
+                            </div>
+                            <ul class="pricing-features">
+                                <li>✅ 无限次去背景</li>
+                                <li>✅ 优先处理</li>
+                                <li>✅ 批量处理</li>
+                                <li>✅ 专属客服</li>
+                            </ul>
+                            <button class="btn btn-primary" onclick="upgradeToPro('yearly')">选择年付</button>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-secondary" id="backFromUpgrade">返回</button>
                 </div>
             </div>
 
