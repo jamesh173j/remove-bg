@@ -4,67 +4,42 @@
 
 ## 功能特性
 
-- ✅ 拖拽或点击上传图片
-- ✅ AI 自动抠图
-- ✅ 原图/结果对比预览
-- ✅ 一键下载透明背景 PNG
-- ✅ 后端代理保护 API Key
-- ✅ 服务端限流保护 API 额度
-- ✅ 无需注册，即用即走
-- ✅ 隐私保护，不存储用户图片
-
-## 技术架构
-
-```
-┌─────────────┐      ┌──────────────┐      ┌─────────────┐
-│   前端页面   │ ───▶ │  后端代理服务 │ ───▶ │ remove.bg  │
-│ (app.js)    │      │ (server.js)  │      │   API       │
-└─────────────┘      └──────────────┘      └─────────────┘
-                            │
-                            ▼
-                     API Key 安全存储
-                     (仅服务端可见)
-```
+- 拖拽或点击上传图片
+- AI 自动抠图
+- 原图/结果对比预览
+- 一键下载透明背景 PNG
+- Google 账号登录
+- 纯前端实现，可部署到任何静态托管服务
 
 ## 快速开始
 
-### 1. 安装依赖
+### 本地测试
 
 ```bash
-npm install
-```
-
-### 2. 本地运行
-
-```bash
-npm start
+# 使用任意静态服务器
+npx serve
+# 或
+python -m http.server 3000
 ```
 
 然后在浏览器中访问 `http://localhost:3000`
 
-### 部署到 Render/Railway/VPS
+### 部署到 Cloudflare Pages
 
-```bash
-# 部署时设置环境变量（可选）
-export PORT=3000
+1. 将代码推送到 GitHub
+2. 登录 [Cloudflare Dashboard](https://dash.cloudflare.com)
+3. 创建 Pages 项目，连接 GitHub 仓库
+4. 直接部署（无需构建命令）
 
-# 启动服务
-npm start
-```
+### 部署到 Vercel/Netlify
 
-## API 端点
-
-| 端点 | 方法 | 说明 |
-|------|------|------|
-| `/` | GET | 首页 |
-| `/api/remove-bg` | POST | 去背景接口 |
-| `/api/health` | GET | 健康检查 |
+直接拖拽文件夹上传即可。
 
 ## 限制说明
 
 - 支持格式: JPG, PNG
 - 最大文件大小: 10MB
-- 限流: 每分钟最多 10 次请求（按 IP）
+- remove.bg 免费额度: 每月 50 次
 
 ## 文件说明
 
@@ -72,14 +47,21 @@ npm start
 |------|------|
 | index.html | 主页面结构 |
 | style.css | 样式文件 |
-| app.js | 前端逻辑（不暴露 API Key） |
-| server.js | 后端代理服务 |
-| package.json | 项目配置 |
-| MVP需求文档.md | 需求文档 |
+| app.js | 前端逻辑（直接调用 remove.bg API） |
 
-## 安全说明
+## Google OAuth 配置
 
-- ✅ API Key 仅存储在服务端 (server.js)
-- ✅ 前端不直接调用 remove.bg API
-- ✅ 图片仅内存中转，不保存到硬盘
-- ✅ 内置 IP 限流，防止恶意刷接口
+已在 `app.js` 中配置好 Google OAuth 客户端 ID。如需修改：
+
+1. 访问 [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
+2. 创建 OAuth 2.0 客户端 ID（Web 应用类型）
+3. 添加授权来源：
+   - `http://localhost:3000`（本地测试）
+   - `https://你的域名.pages.dev`（线上环境）
+4. 复制客户端 ID，替换 `app.js` 中的 `GOOGLE_CLIENT_ID`
+
+## ⚠️ 注意
+
+- 本版本为纯前端实现，API Key 内嵌在代码中
+- remove.bg 免费额度为每月 50 次
+- Google OAuth 仅用于用户身份识别，不存储任何敏感信息

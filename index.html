@@ -9,8 +9,22 @@
 <body>
     <div class="container">
         <header class="header">
-            <h1>🎨 智能去背景</h1>
-            <p class="subtitle">AI 一键抠图，无需注册，即用即走</p>
+            <div class="header-left">
+                <h1>🎨 智能去背景</h1>
+                <p class="subtitle">AI 一键抠图，无需注册，即用即走</p>
+            </div>
+            <div class="header-right">
+                <!-- 未登录状态 -->
+                <div id="loginSection" class="login-section">
+                    <div id="g_id_signin" class="google-signin-button"></div>
+                </div>
+                <!-- 已登录状态 -->
+                <div id="userSection" class="user-section" style="display: none;">
+                    <img id="userAvatar" class="user-avatar" src="" alt="头像">
+                    <span id="userName" class="user-name"></span>
+                    <button id="logoutBtn" class="btn-logout">退出</button>
+                </div>
+            </div>
         </header>
 
         <main class="main">
@@ -73,6 +87,8 @@
         </footer>
     </div>
 
+    <!-- Google Identity Services -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="app.js"></script>
 </body>
 </html>

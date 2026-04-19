@@ -37,8 +37,15 @@ body {
 
 /* Header */
 .header {
-    text-align: center;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 40px;
+    padding: 0 20px;
+}
+
+.header-left {
+    text-align: left;
 }
 
 .header h1 {
@@ -54,6 +61,57 @@ body {
 .subtitle {
     font-size: 1.1rem;
     color: var(--text-secondary);
+}
+
+/* 用户登录区域 */
+.header-right {
+    display: flex;
+    align-items: center;
+}
+
+.user-section {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid var(--border-color);
+    object-fit: cover;
+}
+
+.user-name {
+    font-weight: 600;
+    color: var(--text-primary);
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.btn-logout {
+    padding: 8px 16px;
+    border: 1px solid var(--border-color);
+    background: white;
+    color: var(--text-secondary);
+    border-radius: 6px;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-logout:hover {
+    background: var(--bg-color);
+    border-color: var(--secondary-color);
+    color: var(--text-primary);
+}
+
+.google-signin-button {
+    display: flex;
+    align-items: center;
 }
 
 /* Main */
@@ -277,8 +335,22 @@ body {
 
 /* Responsive */
 @media (max-width: 768px) {
+    .header {
+        flex-direction: column;
+        gap: 20px;
+        text-align: center;
+    }
+
+    .header-left {
+        text-align: center;
+    }
+
     .header h1 {
         font-size: 1.75rem;
+    }
+
+    .user-name {
+        max-width: 80px;
     }
 
     .preview-container {

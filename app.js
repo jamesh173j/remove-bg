@@ -1,4 +1,4 @@
-// 智能去背景工具 - 前端逻辑
+// 智能去背景工具 - 纯前端版本
 
 const uploadSection = document.getElementById('uploadSection');
 const processingSection = document.getElementById('processingSection');
@@ -13,13 +13,112 @@ const retryBtn = document.getElementById('retryBtn');
 const errorRetryBtn = document.getElementById('errorRetryBtn');
 const errorText = document.getElementById('errorText');
 
-let currentResultBlob = null;
+// Google OAuth 相关元素
+const loginSection = document.getElementById('loginSection');
+const userSection = document.getElementById('userSection');
+const userAvatar = document.getElementById('userAvatar');
+const userName = document.getElementById('userName');
+const logoutBtn = document.getElementById('logoutBtn');
 
-// 后端 API 地址
-// 本地开发时使用 Cloudflare 线上 API，线上部署时使用同域
-const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    ? 'https://remove-bg-aba.pages.dev'  // 本地开发：调用线上 API
-    : '';  // 线上部署：同域调用
+let currentResultBlob = null;
+let currentUser = null;
+
+// 注意：纯前端版本，API Key 会暴露在浏览器中
+// remove.bg 免费额度：每月 50 次
+const REMOVE_BG_API_KEY = 'X23XZh61nTi1tjoXAx7RcupD';
+
+// Google OAuth 客户端 ID
+const GOOGLE_CLIENT_ID = '396847169891-2kijs0nn49ru4er4j08spc6rnr8i4c43.apps.googleusercontent.com';
+
+// ==================== Google OAuth 功能 ====================
+
+// 初始化 Google 登录
+function initGoogleAuth() {
+    // 检查本地存储的登录状态
+    const savedUser = localStorage.getItem('user');
+    if (savedUser) {
+        currentUser = JSON.parse(savedUser);
+        showUserInfo();
+    }
+
+    // 初始化 Google 登录按钮
+    if (window.google && google.accounts) {
+        google.accounts.id.initialize({
+            client_id: GOOGLE_CLIENT_ID,
+            callback: handleCredentialResponse,
+            auto_select: false,
+            cancel_on_tap_outside: true
+        });
+
+        // 渲染登录按钮
+        google.accounts.id.renderButton(
+            document.getElementById('g_id_signin'),
+            {
+                theme: 'outline',
+                size: 'medium',
+                text: 'signin_with',
+                shape: 'rectangular',
+                width: 200
+            }
+        );
+    }
+}
+
+// 处理登录回调
+function handleCredentialResponse(response) {
+    // 解码 JWT token
+    const credential = response.credential;
+    const payload = JSON.parse(atob(credential.split('.')[1]));
+
+    currentUser = {
+        id: payload.sub,
+        name: payload.name,
+        email: payload.email,
+        picture: payload.picture
+    };
+
+    // 保存到本地存储
+    localStorage.setItem('user', JSON.stringify(currentUser));
+
+    // 显示用户信息
+    showUserInfo();
+
+    console.log('登录成功:', currentUser.name);
+}
+
+// 显示用户信息
+function showUserInfo() {
+    if (!currentUser) return;
+
+    loginSection.style.display = 'none';
+    userSection.style.display = 'flex';
+
+    userAvatar.src = currentUser.picture;
+    userName.textContent = currentUser.name;
+}
+
+// 退出登录
+function logout() {
+    currentUser = null;
+    localStorage.removeItem('user');
+
+    // 显示登录按钮
+    loginSection.style.display = 'block';
+    userSection.style.display = 'none';
+
+    // 清除 Google 登录状态
+    if (window.google && google.accounts) {
+        google.accounts.id.disableAutoSelect();
+    }
+
+    console.log('已退出登录');
+}
+
+// 绑定退出按钮事件
+logoutBtn.addEventListener('click', logout);
+
+// 页面加载完成后初始化 Google 登录
+window.addEventListener('load', initGoogleAuth);
 
 // 切换显示区域
 function showSection(section) {
@@ -107,19 +206,23 @@ async function handleFile(file) {
     }
 }
 
-// 调用后端 API（不直接暴露 remove.bg API Key）
+// 直接调用 remove.bg API（纯前端，API Key 会暴露）
 async function removeBackground(file) {
     const formData = new FormData();
-    formData.append('image', file);
+    formData.append('image_file', file);
+    formData.append('size', 'auto');
 
-    const response = await fetch(`${API_BASE}/api/remove-bg`, {
+    const response = await fetch('https://api.remove.bg/v1.0/removebg', {
         method: 'POST',
+        headers: {
+            'X-Api-Key': REMOVE_BG_API_KEY,
+        },
         body: formData,
     });
 
     if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        const errorMsg = errorData.error || `请求失败 (${response.status})`;
+        const errorMsg = errorData.errors?.[0]?.title || `请求失败 (${response.status})`;
         throw new Error(errorMsg);
     }
 
