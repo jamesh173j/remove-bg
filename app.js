@@ -292,25 +292,122 @@ async function updateProfileInfo() {
     }
 }
 
-// 升级 Pro
-async function upgradeToPro(plan) {
-    // 模拟支付成功，调用后端更新用户等级
+// ==================== PayPal 支付功能 ====================
+
+let currentPlan = null;
+
+// 初始化支付按钮
+function initPaymentButtons() {
+    // 月付按钮
+    const monthlyBtn = document.getElementById('paypal-monthly');
+    const yearlyBtn = document.getElementById('paypal-yearly');
+
+    if (monthlyBtn) {
+        monthlyBtn.addEventListener('click', () => startPayment('monthly'));
+    }
+    if (yearlyBtn) {
+        yearlyBtn.addEventListener('click', () => startPayment('yearly'));
+    }
+}
+
+// 开始支付流程
+async function startPayment(plan) {
+    if (!currentUser) {
+        alert('请先登录后再升级 Pro');
+        return;
+    }
+
+    currentPlan = plan;
+
     try {
-        const headers = {};
-        if (currentUser && currentUser.token) {
-            headers['Authorization'] = `Bearer ${currentUser.token}`;
+        // 显示加载状态
+        const btn = document.getElementById(`paypal-${plan}`);
+        const originalText = btn.textContent;
+        btn.textContent = '处理中...';
+        btn.disabled = true;
+
+        // 调用后端创建订单
+        const response = await fetch('/api/payment', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                plan: plan,
+                userId: currentUser.id
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error('创建订单失败');
         }
 
-        // 调用后端升级接口（这里简化处理，实际应该有支付验证）
-        alert(`恭喜！已成功升级 ${plan === 'monthly' ? '月付' : '年付'} Pro 会员！`);
+        const data = await response.json();
 
-        // 刷新用户信息
-        await fetchUserInfo();
-        await showProfile();
+        // 保存订单信息
+        localStorage.setItem('currentOrder', JSON.stringify({
+            orderId: data.orderId,
+            plan: plan,
+            userId: currentUser.id
+        }));
+
+        // 打开 PayPal 支付页面
+        window.location.href = data.approveUrl;
+
     } catch (error) {
-        console.error('升级失败:', error);
-        alert('升级失败，请稍后重试');
+        console.error('支付启动失败:', error);
+        alert('支付启动失败，请稍后重试');
+
+        // 恢复按钮状态
+        const btn = document.getElementById(`paypal-${plan}`);
+        btn.textContent = plan === 'monthly' ? '选择月付' : '选择年付';
+        btn.disabled = false;
     }
+}
+
+// 检查支付结果（页面加载时调用）
+async function checkPaymentResult() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token'); // PayPal 返回的订单 ID
+
+    if (token) {
+        // 从 localStorage 获取订单信息
+        const orderInfo = localStorage.getItem('currentOrder');
+        if (orderInfo) {
+            const { orderId, plan, userId } = JSON.parse(orderInfo);
+
+            try {
+                // 验证支付
+                const response = await fetch(`/api/payment?orderId=${token}&userId=${userId}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('🎉 支付成功！您已升级为 Pro 会员！');
+                    localStorage.removeItem('currentOrder');
+
+                    // 清除 URL 参数
+                    window.history.replaceState({}, document.title, window.location.pathname);
+
+                    // 刷新用户信息
+                    await fetchUserInfo();
+
+                    // 跳转到个人中心
+                    showProfile();
+                } else {
+                    alert('支付状态: ' + data.message);
+                }
+            } catch (error) {
+                console.error('验证支付失败:', error);
+                alert('验证支付失败，请稍后重试');
+            }
+        }
+    }
+}
+
+// 旧函数保留（用于兼容）
+async function upgradeToPro(plan) {
+    // 现在通过 PayPal 按钮处理
+    console.log('请使用 PayPal 按钮完成支付');
 }
 
 // ==================== 去背景功能 ====================
@@ -479,7 +576,11 @@ function reset() {
 }
 
 // 页面加载完成后初始化
-window.addEventListener('load', initGoogleAuth);
+window.addEventListener('load', () => {
+    initGoogleAuth();
+    initPaymentButtons();
+    checkPaymentResult(); // 检查支付返回结果
+});
 
 // 绑定按钮事件
 document.getElementById('upgradeBtn')?.addEventListener('click', showUpgrade);

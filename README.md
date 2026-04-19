@@ -98,6 +98,8 @@ git push origin main
 |--------|-----|
 | `REMOVE_BG_API_KEY` | 你的 remove.bg API Key |
 
+**注意**：PayPal Client ID 和 Secret 已硬编码在 `functions/api/payment.js` 中（沙箱环境）。生产环境请改为环境变量。
+
 ### 7. 绑定 KV 命名空间
 
 在 Settings → Functions → KV namespace bindings 中添加：
@@ -140,7 +142,37 @@ wrangler pages dev .
 
 ## 用户数据存储
 
-用户数据存储在 Cloudflare KV 中，结构如下：
+## PayPal 支付（沙箱环境）
+
+当前使用 PayPal Sandbox（沙箱）模式进行测试：
+
+- **月付**：$19 USD
+- **年付**：$99 USD
+
+### 测试支付
+
+1. 登录后点击"升级 Pro"
+2. 点击 PayPal 按钮
+3. 使用 PayPal 沙箱测试账号登录：
+   - 邮箱：`sb-kbmgx50717808@business.example.com`
+   - 密码：`1b!GleY-`
+4. 完成支付后自动返回网站并升级为 Pro
+
+### 生产环境切换
+
+如需切换到真实的 PayPal 生产环境，请修改 `functions/api/payment.js`：
+
+```javascript
+// 沙箱环境（测试）
+const PAYPAL_API = 'https://api-m.sandbox.paypal.com';
+
+// 生产环境（真实支付）
+const PAYPAL_API = 'https://api-m.paypal.com';
+```
+
+并替换 Client ID 和 Secret 为生产环境的凭证。
+
+## 用户数据存储
 
 ```json
 {
@@ -179,7 +211,8 @@ wrangler pages dev .
 
 ## 后续优化方向
 
-- [ ] 接入真实支付（Stripe/PayPal）
+- [x] 接入 PayPal 支付（沙箱环境 ✓）
+- [ ] 切换到 PayPal 生产环境
 - [ ] 批量处理功能
 - [ ] 更多图片格式支持
 - [ ] 自定义背景颜色
