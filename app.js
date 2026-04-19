@@ -209,6 +209,9 @@ function showUpgrade() {
     hideAllMainSections();
     upgradeSection.style.display = 'block';
     toggleUserMenu(false);
+
+    // 初始化支付按钮（页面显示后再绑定）
+    initPaymentButtons();
 }
 
 // 切换用户下拉菜单
@@ -302,11 +305,15 @@ function initPaymentButtons() {
     const monthlyBtn = document.getElementById('paypal-monthly');
     const yearlyBtn = document.getElementById('paypal-yearly');
 
+    console.log('初始化支付按钮:', { monthlyBtn, yearlyBtn }); // 调试信息
+
     if (monthlyBtn) {
         monthlyBtn.addEventListener('click', () => startPayment('monthly'));
+        console.log('月付按钮已绑定');
     }
     if (yearlyBtn) {
         yearlyBtn.addEventListener('click', () => startPayment('yearly'));
+        console.log('年付按钮已绑定');
     }
 }
 
